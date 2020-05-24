@@ -7,6 +7,8 @@ A simple load test script.
 ```bash
 npm install
 npm run build  # or `npm run watch`
-npm start
+
+# Send 10 requests over 5 seconds to https://example.com
+npm start https://example.com 10 5
 ```
 
