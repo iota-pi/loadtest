@@ -1,5 +1,10 @@
 import axios from 'axios';
 
+export interface RequestResult {
+  error: boolean,
+  duration: number,
+}
+
 export const attack = async (url: string, requests: number, duration: number) => {
   console.log(
     `Attack will send ${requests} requests to ${url} over ${Math.floor(duration / 1000)} seconds`
@@ -22,15 +27,11 @@ export const attack = async (url: string, requests: number, duration: number) =>
   console.log(`${requests} requests sent`);
   const results = await Promise.all(responses);
   const elapsedTime = (new Date().getTime() - start) / 1000;
-  const errors = results.reduce((acc, { error }) => acc + error, 0);
-  const totalDuration = results.reduce((acc, { duration }) => acc + duration, 0);
-  const averageDuration = totalDuration / requests;
-  const minDuration = Math.min(...results.map(r => r.duration));
-  const maxDuration = Math.max(...results.map(r => r.duration));
+  const { errors, minDuration, averageDuration, maxDuration } = getStats(results);
 
   console.log(`Attack completed at: ${new Date()}`);
   console.log(`Attack duration: ${elapsedTime}`);
-  console.log(`Error responses received: ${errors}`);
+  console.log(`Error responses received: ${errors} (${errors * 100 / requests}%)`);
   console.log(`Response time in ms (min/avg/max): ${minDuration}/${averageDuration}/${maxDuration}`);
 }
 
@@ -40,7 +41,7 @@ function sleep (ms: number) {
   });
 }
 
-async function requestWithTime (url: string) {
+async function requestWithTime (url: string): Promise<RequestResult> {
   let error = false;
   const start = new Date().getTime();
   await axios.get(url).catch(() => error = true);
@@ -50,6 +51,27 @@ async function requestWithTime (url: string) {
     error,
     duration,
   };
+}
+
+function getStats (results: RequestResult[]) {
+  let errors = 0;
+  let totalDuration = 0;
+  let minDuration = Infinity;
+  let maxDuration = -Infinity;
+  for (const result of results) {
+    errors += +result.error;
+    totalDuration += result.duration;
+    minDuration = Math.min(minDuration, result.duration);
+    maxDuration = Math.max(maxDuration, result.duration);
+  }
+  const averageDuration = totalDuration / results.length;
+
+  return {
+    errors,
+    averageDuration,
+    minDuration,
+    maxDuration,
+  }
 }
 
 if (process.argv.length < 2 + 3) {
