@@ -1,0 +1,16 @@
+{
+  "name": "loadtest",
+  "version": "1.0.0",
+  "description": "Simple load test script",
+  "main": "index.ts",
+  "scripts": {
+    "build": "npx tsc",
+    "watch": "npx tsc -w",
+    "start": "node build/attack"
+  },
+  "author": "David Adams",
+  "dependencies": {
+    "@types/node": "^13.7.1",
+    "axios": "^0.19.2"
+  }
+}
