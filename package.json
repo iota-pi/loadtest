@@ -11,6 +11,6 @@
   "author": "David Adams",
   "dependencies": {
     "@types/node": "^13.7.1",
-    "axios": "^0.19.2"
+    "axios": "^0.21.1"
   }
 }
